@@ -1,6 +1,7 @@
 import cv2
 import mediapipe as mp
-import time
+#import time
+import datetime
 import os
 
 nombreAPP = "Detector de Estrabismo by Armando8bits"
@@ -20,11 +21,14 @@ def detectar_parpadeo(face_landmarks):
     return distancia_ojo_izq < umbral_parpadeo or distancia_ojo_der < umbral_parpadeo
 
 def main():
+    contador_imagenes = 1  # Inicializar el contador
+    desviacion_detectada = False  # Variable de estado
     mp_face_mesh = mp.solutions.face_mesh
     face_mesh = mp_face_mesh.FaceMesh()
     cap = cv2.VideoCapture(0)
     
-    fecha_actual = time.strftime("%Y%m%d")
+    #fecha_actual = time.strftime("%Y%m%d")
+    fecha_actual = datetime.datetime.now().strftime("%Y%m%d")
     carpeta_destino = os.path.join(os.getcwd(), f"estrabismo_{fecha_actual}")
     os.makedirs(carpeta_destino, exist_ok=True)
     
@@ -42,10 +46,16 @@ def main():
         if results.multi_face_landmarks:
             for face_landmarks in results.multi_face_landmarks:
                 if not detectar_parpadeo(face_landmarks) and detectar_desviacion(face_landmarks):
-                    timestamp = time.strftime("%H%M%S")
-                    filename = os.path.join(carpeta_destino, f"estrabismo_{timestamp}.png")
-                    cv2.imwrite(filename, frame)
-                    print(f"Desviación detectada, imagen guardada como {filename}")
+                    if not desviacion_detectada:  # Verificar si ya se guardó una imagen
+                        #timestamp = time.strftime("%H%M%S")
+                        timestamp = datetime.datetime.now().strftime("%H%M%S_%f")[:-3]
+                        filename = os.path.join(carpeta_destino, f"estrabismo # {contador_imagenes} a_{timestamp}.png")
+                        cv2.imwrite(filename, frame)
+                        print(f"Desviación detectada, imagen {contador_imagenes} imagen guardada como {filename}")
+                        contador_imagenes += 1  # Incrementar el contador
+                        desviacion_detectada = True  # Establecer el estado a True
+                else:
+                    desviacion_detectada = False  # Restablecer el estado si no hay detección
                     
         cv2.imshow(nombreAPP, frame)
         
