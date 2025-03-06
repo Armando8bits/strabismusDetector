@@ -26,13 +26,22 @@ def main():
     mp_face_mesh = mp.solutions.face_mesh
     face_mesh = mp_face_mesh.FaceMesh()
     cap = cv2.VideoCapture(0)
+
+    # Establecer la resolución deseada (por ejemplo, 1280x960)
+    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
+    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 960)
+
+    # Verificar la resolución actual (opcional)
+    width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+    height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    print(f"Resolución de la cámara: {width}x{height}")
     
     #fecha_actual = time.strftime("%Y%m%d")
     fecha_actual = datetime.datetime.now().strftime("%Y%m%d")
     carpeta_destino = os.path.join(os.getcwd(), f"estrabismo_{fecha_actual}")
     os.makedirs(carpeta_destino, exist_ok=True)
     
-    cv2.namedWindow(nombreAPP)  # Crear una ventana con nombre
+    cv2.namedWindow(nombreAPP, cv2.WINDOW_NORMAL)  # Crear una ventana con nombre
     
     while True:  # Bucle infinito
         ret, frame = cap.read()
